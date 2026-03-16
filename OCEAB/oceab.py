@@ -1,15 +1,51 @@
-import sys, shutil, os, json, pathlib, subprocess, builtins, webbrowser
-import random, argparse, statistics, math, datetime, csv, sqlite3, socket 
-import http, smtplib, re, enum, time, functools, urllib, itertools, dataclasses, collections
-import numpy as np
-import matplotlib.pyplot as plt
-import pandas as pd
+import os 
+import sys
 
 oceab_welcome = """
 Welcome to OCEAB v1.0.0, the open-source cross-platform mathematical computing environment.
 Built on top of Python, OCEAB provides a powerful platform for data analysis and research."""
 
 print(oceab_welcome)
+module_menu = """
+--- OCEAB MODULE SELECTOR ---
+[1] MATH & DATA    : numpy, pandas, matplotlib, math, statistics
+[2] WEB & NETWORK  : socket, http, urllib, smtplib, webbrowser
+[3] STORAGE & FILES: json, csv, sqlite3, pathlib, shutil
+[4] DEV TOOLS      : itertools, functools, dataclasses, collections, re, enum
+[5] UTILITIES      : subprocess, time, datetime, random, argparse, builtins
+[6] LOAD ALL       : Load everything, will be slow
+-----------------------------
+"""
+print("Before you can start calculating, please choose a engine to load for OCEAB.")
+print()
+print(module_menu)
+print()
+choice = input("Choose the number 1-6, or press enter to load NO EXTRA libs but os and sys which are used by oceab but freely useable for users").strip()
+if choice == '1':
+    print("Loading math engine, numpy as np, pandas as pd and matplotlib.pyplot as plt")
+    import numpy as np, pandas as pd, matplotlib.pyplot as plt
+    import math, statistics
+elif choice == '2':
+    print("Loading web and networking engine")
+    import socket, http, urllib, smtplib, webbrowser
+elif choice == '3':
+    print("Loading storage and files engine")
+    import json, csv, sqlite3, pathlib, shutil
+elif choice == '4':
+    print("Loading dev tools engine")
+    import itertools, functools, dataclasses, collections, re, enum
+elif choice == '5':
+    print("Loading utilities engine")
+    import subprocess, time, datetime, random, argparse, builtins
+elif choice == '6':
+    print("Loading full engine, numpy as np, pandas as pd and matplotlib.pyplot as plt")
+    import shutil, json, pathlib, subprocess, builtins, webbrowser, random
+    import argparse, statistics, math, datetime, csv, sqlite3, socket, http
+    import smtplib, re, enum, time, functools, urllib, itertools, dataclasses
+    import collections, numpy as np, pandas as pd
+    import matplotlib.pyplot as plt
+else:
+    print("Loading nothing, however OCEAB libs (sys and os) shall still be callable"),strip()   
 print("Type 'help()' to understand how to use OCEAB and its features.")
 
 help_message = """ 
