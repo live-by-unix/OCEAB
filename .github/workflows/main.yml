@@ -1,11 +1,11 @@
-name: Build and Release OCEAB2
+name: Build and Release OCEAB22
 
 on:
   push:
     branches: [ main ]
-  workflow_dispatch:      # This adds the manual "START" button
+  workflow_dispatch:      # This allows you to click the manual "Run" button
   release:
-    types: [published]    # This makes it run when you click "Publish"
+    types: [published]    # This runs when you make a new release
 
 jobs:
   build:
@@ -21,21 +21,28 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
       
-      - name: Install Libs
-        run: pip install nuitka numpy pandas matplotlib
+      - name: Install Dependencies
+        run: |
+          pip install numpy pandas matplotlib nuitka
+          # Add any other libraries you use here (e.g., pip install requests)
 
       - name: Build with Nuitka
         uses: Nuitka/Nuitka-Action@main
         with:
           nuitka-version: main
           script-name: oceab.py
-          onefile: true
+          mode: onefile
+          standalone: true
+          show-memory: true
+          assume-yes-for-downloads: true
 
-      - name: Upload for Release
+      - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact_name }}
@@ -43,6 +50,7 @@ jobs:
 
   release:
     needs: build
+    if: github.event_name == 'release' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -59,7 +67,8 @@ jobs:
           files: ./dist/**
           name: OCEAB Release ${{ github.ref_name }}
           body: |
-            New OCEAB Build!
-            Compatible with Minecraft Snapshot 26.1 Pre.2
+            OCEAB Build v2.0
+            Compiled for Windows, Linux, and macOS.
+            Optimized for Minecraft Snapshot 26.1 Pre.2
           draft: false
           prerelease: false
