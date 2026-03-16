@@ -1,9 +1,11 @@
-name: Build and Release OCEAB
+name: Build and Release OCEAB2
 
 on:
   push:
-    tags:
-      - 'v*' # This triggers the release when you push a tag like v1.0.1
+    branches: [ main ]
+  workflow_dispatch:      # This adds the manual "START" button
+  release:
+    types: [published]    # This makes it run when you click "Publish"
 
 jobs:
   build:
@@ -37,10 +39,10 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact_name }}
-          path: build/oceab* # Grabs whatever Nuitka spit out
+          path: build/oceab*
 
   release:
-    needs: build # This waits for Windows, Mac, and Linux to finish!
+    needs: build
     runs-on: ubuntu-latest
     permissions:
       contents: write
