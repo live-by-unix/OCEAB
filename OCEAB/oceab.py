@@ -46,7 +46,7 @@ elif choice == '6':
     import collections, numpy as np, pandas as pd
     import matplotlib.pyplot as plt
 else:
-    print("Loading nothing, however OCEAB libs (sys and os) shall still be callable"),strip()   
+    print("Loading nothing, however OCEAB libs (sys and os) shall still be callable").strip()   
 print("Type 'help()' to understand how to use OCEAB and its features.")
 
 help_message = """ 
