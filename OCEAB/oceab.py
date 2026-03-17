@@ -1,5 +1,6 @@
 import os 
 import sys
+import subprocess
 
 oceab_welcome = """
 Welcome to OCEAB v1.0.0, the open-source cross-platform mathematical computing environment.
