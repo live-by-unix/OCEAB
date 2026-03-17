@@ -20,5 +20,5 @@ AND THAT'S ALL!.
 ***
 FOR DEVS.
 You can freely remix this under MIT LICENSE   
-And a note for everyone:, currently I am having problems with NUTIKA, and I am trying my best to make a standalone executable. And some limitatiosn like githubs 2,000 minutes per month limit on GitHub actions is also putitng a limit on building
+And a note for everyone:, currently I am having problems with NUTIKA, and I am trying my best to make a standalone executable. And some limits like githubs 2,000 minutes per month limit on GitHub actions is also putitng a limit on building
 
