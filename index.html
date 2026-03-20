@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OCEAB | Project Gallery</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .active-filter { border-left: 4px solid #3b82f6; background: #1e293b; color: #3b82f6; font-weight: bold; }
+        .hide { display: none; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-200 font-sans flex h-screen overflow-hidden">
+
+    <aside class="w-64 bg-slate-800 border-r border-slate-700 flex flex-col shadow-2xl">
+        <div class="p-8">
+            <h1 class="text-3xl font-black text-white tracking-tighter">OCEAB</h1>
+            <p class="text-xs text-slate-500 uppercase tracking-widest mt-1">Project Hub</p>
+        </div>
+        
+        <nav class="flex-1 px-4 space-y-1">
+            <button onclick="filterProjects('all')" id="btn-all" class="active-filter w-full text-left p-3 rounded-lg transition hover:bg-slate-700">
+                <i class="fa-solid fa-grid-2 mr-3 opacity-70"></i> All Projects
+            </button>
+            <button onclick="filterProjects('heart')" id="btn-heart" class="w-full text-left p-3 rounded-lg transition hover:bg-slate-700">
+                <i class="fa-solid fa-heart text-red-500 mr-3"></i> Hearted
+            </button>
+            <button onclick="filterProjects('like')" id="btn-like" class="w-full text-left p-3 rounded-lg transition hover:bg-slate-700">
+                <i class="fa-solid fa-thumbs-up text-blue-500 mr-3"></i> Liked
+            </button>
+            <button onclick="filterProjects('dislike')" id="btn-dislike" class="w-full text-left p-3 rounded-lg transition hover:bg-slate-700">
+                <i class="fa-solid fa-thumbs-down text-orange-500 mr-3"></i> Disliked
+            </button>
+        </nav>
+
+        <div class="p-6">
+            <button onclick="toggleModal(true)" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl transition transform hover:scale-105 shadow-lg">
+                <i class="fa-solid fa-plus-circle mr-2"></i> Upload Code
+            </button>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col bg-slate-900">
+        <header class="h-24 flex items-center px-10 border-b border-slate-800 bg-slate-900/50 backdrop-blur-md sticky top-0 z-10">
+            <div class="relative w-full max-w-3xl mx-auto">
+                <i class="fa-solid fa-magnifying-glass absolute left-5 top-4 text-slate-500"></i>
+                <input type="text" id="searchInput" onkeyup="searchProjects()" placeholder="Search by name, category, or author..." 
+                    class="w-full bg-slate-800/50 border border-slate-700 rounded-2xl py-3.5 pl-14 pr-6 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition">
+            </div>
+        </header>
+
+        <section id="gallery" class="flex-1 overflow-y-auto p-10 grid grid-cols-1 gap-4 content-start">
+            </section>
+    </main>
+
+    <div id="uploadModal" class="fixed inset-0 bg-slate-950/90 flex items-center justify-center hide z-50 p-4">
+        <div class="bg-slate-800 w-full max-w-xl p-8 rounded-3xl shadow-2xl border border-slate-700">
+            <h2 class="text-2xl font-bold mb-2 text-white">Share Your Work</h2>
+            <p class="text-slate-400 mb-6 text-sm">This will generate a GitHub Issue for the OCEAB maintainers.</p>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1 uppercase">Author Handle</label>
+                    <input type="text" id="upUser" placeholder="e.g. @octocat" class="w-full bg-slate-900 p-3 rounded-xl border border-slate-700 focus:border-indigo-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1 uppercase">Project Title</label>
+                    <input type="text" id="upTitle" placeholder="The name of your creation" class="w-full bg-slate-900 p-3 rounded-xl border border-slate-700 focus:border-indigo-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1 uppercase">Source Code / Description</label>
+                    <textarea id="upCode" placeholder="Paste your script or a link to your repository..." rows="6" class="w-full bg-slate-900 p-4 rounded-xl border border-slate-700 font-mono text-sm focus:border-indigo-500 outline-none"></textarea>
+                </div>
+                
+                <div class="flex space-x-3 pt-4">
+                    <button onclick="submitViaGithub()" class="flex-1 bg-green-600 p-4 rounded-xl font-bold hover:bg-green-500 transition shadow-lg shadow-green-900/20">Create Issue</button>
+                    <button onclick="toggleModal(false)" class="flex-1 bg-slate-700 p-4 rounded-xl font-bold hover:bg-slate-600 transition">Discard</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const REPO_OWNER = "live-by-unix";
+        const REPO_NAME = "OCEAB";
+
+       
+        let projects = [
+            { id: 1, name: "Neural-Mesh Engine THIS IS DUMMY", user: "dev_ai", category: "heart", likes: 124, dislikes: 2, hearted: 45 },
+            { id: 2, name: "FastAPI Boilerplate THIS IS DUMMY", user: "python_pro", category: "like", likes: 89, dislikes: 5, hearted: 12 },
+            { id: 3, name: "Legacy Script V2" THIS IS DUMMY, user: "old_school", category: "dislike", likes: 4, dislikes: 56, hearted: 0 },
+            { id: 4, name: "Oceab UI Components THIS IS DUMMY", user: "design_king", category: "heart", likes: 210, dislikes: 1, hearted: 88 }
+        ];
+
+        const gallery = document.getElementById('gallery');
+
+        function renderGallery(data) {
+            gallery.innerHTML = '';
+            if(data.length === 0) {
+                gallery.innerHTML = `<div class="text-center py-20 text-slate-500">No projects found in this category.</div>`;
+                return;
+            }
+            data.forEach(p => {
+                gallery.innerHTML += `
+                    <div class="bg-slate-800/40 p-6 rounded-2xl border border-slate-700/50 flex flex-col md:flex-row justify-between items-start md:items-center hover:bg-slate-800 hover:border-indigo-500/50 transition-all duration-300 group">
+                        <div class="mb-4 md:mb-0">
+                            <h3 class="text-xl font-bold text-white group-hover:text-indigo-400 transition">${p.name}</h3>
+                            <p class="text-slate-500 text-sm italic">By @${p.user}</p>
+                        </div>
+                        <div class="flex items-center space-x-2 bg-slate-900/50 p-2 rounded-xl border border-slate-700">
+                            <button onclick="react(${p.id}, 'heart')" class="px-3 py-1.5 rounded-lg hover:bg-red-500/10 hover:text-red-500 transition flex items-center gap-2">
+                                <i class="fa-solid fa-heart ${p.category === 'heart' ? 'text-red-500' : 'text-slate-600'}"></i> ${p.hearted}
+                            </button>
+                            <div class="w-px h-4 bg-slate-700"></div>
+                            <button onclick="react(${p.id}, 'like')" class="px-3 py-1.5 rounded-lg hover:bg-blue-500/10 hover:text-blue-500 transition flex items-center gap-2">
+                                <i class="fa-solid fa-thumbs-up ${p.category === 'like' ? 'text-blue-500' : 'text-slate-600'}"></i> ${p.likes}
+                            </button>
+                            <div class="w-px h-4 bg-slate-700"></div>
+                            <button onclick="react(${p.id}, 'dislike')" class="px-3 py-1.5 rounded-lg hover:bg-orange-500/10 hover:text-orange-500 transition flex items-center gap-2">
+                                <i class="fa-solid fa-thumbs-down ${p.category === 'dislike' ? 'text-slate-600' : 'text-slate-600'}"></i> ${p.dislikes}
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function filterProjects(cat) {
+            document.querySelectorAll('nav button').forEach(btn => btn.classList.remove('active-filter'));
+            document.getElementById(`btn-${cat}`).classList.add('active-filter');
+            if(cat === 'all') return renderGallery(projects);
+            renderGallery(projects.filter(p => p.category === cat));
+        }
+
+        function searchProjects() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            renderGallery(projects.filter(p => p.name.toLowerCase().includes(query) || p.user.toLowerCase().includes(query)));
+        }
+
+        function toggleModal(show) {
+            document.getElementById('uploadModal').classList.toggle('hide', !show);
+        }
+
+        function submitViaGithub() {
+            const user = document.getElementById('upUser').value;
+            const title = document.getElementById('upTitle').value;
+            const code = document.getElementById('upCode').value;
+
+            if(!user || !title || !code) return alert("Please fill everything out!")
+            const body = encodeURIComponent(`### Author\n${user}\n\n### Description/Code\n\`\`\`\n${code}\n\`\`\``);
+            const githubUrl = `https://github.com/${REPO_OWNER}/${REPO_NAME}/issues/new?title=[UPLOAD]+${encodeURIComponent(title)}&body=${body}`;
+            
+           
+            window.open(githubUrl, '_blank');
+            toggleModal(false);
+        }
+
+        function react(id, type) {
+            const p = projects.find(item => item.id === id);
+            if(type === 'heart') p.hearted++;
+            if(type === 'like') p.likes++;
+            if(type === 'dislike') p.dislikes++;
+            renderGallery(projects);
+        }
+
+        renderGallery(projects);
+    </script>
+</body>
+</html>
