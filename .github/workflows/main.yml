@@ -1,0 +1,75 @@
+name: OCEAB Final Standalone Build
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            extension: .exe
+          - os: ubuntu-latest
+            extension: .bin
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install Dependencies
+        run: |
+          pip install nuitka customtkinter numpy pandas matplotlib
+          if [ "${{ matrix.os }}" = "ubuntu-latest" ]; then
+            sudo apt-get update
+            sudo apt-get install -y python3-tk python3-dev
+          fi
+        shell: bash
+
+      - name: Get CustomTkinter Path
+        id: ctk-path
+        run: |
+          python -c "import customtkinter; import os; print('path=' + os.path.dirname(customtkinter.__file__))" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Create Dist Folder
+        run: mkdir dist
+        shell: bash
+
+      - name: Compile GUI (Standalone with Themes)
+        run: |
+          python -m nuitka --standalone --onefile \
+          --enable-plugin=tk-inter \
+          --include-package=customtkinter \
+          --include-data-dir="${{ steps.ctk-path.outputs.path }}"=customtkinter \
+          --include-package=numpy \
+          --include-package=pandas \
+          --include-package=matplotlib \
+          --windows-console-mode=disable \
+          --output-dir=dist \
+          --output-filename=OCEAB_GUI${{ matrix.extension }} \
+          oceab_interface.py
+
+      - name: Compile CLI (Standalone)
+        run: |
+          python -m nuitka --standalone --onefile \
+          --include-package=numpy \
+          --include-package=pandas \
+          --output-dir=dist \
+          --output-filename=OCEAB_CLI${{ matrix.extension }} \
+          oceab.py
+
+      - name: Upload Dist Folder
+        uses: actions/upload-artifact@v4
+        with:
+          name: OCEAB-Dist-${{ matrix.os }}
+          path: dist/
